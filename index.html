@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Share Flex</title>
+
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+button {
+    padding: 18px 46px;
+    font-size: 22px;
+    font-weight: bold;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(90deg, #00ffcc, #00cc99);
+    color: #000;
+    box-shadow: 0 0 20px rgba(0,255,200,0.8);
+}
+</style>
+</head>
+
+<body>
+
+<button onclick="shareFlex()">🚀 กดแชร์</button>
+
+<script>
+async function shareFlex() {
+    try {
+        await liff.init({ liffId: "2008689015-qDukuXPF" });
+
+        if (!liff.isInClient()) {
+            alert("กรุณาเปิดหน้านี้ผ่านแอป LINE");
+            return;
+        }
+
+        const flexMessage = {
+            type: "flex",
+            altText: "แชร์สิทธิ์พิเศษ",
+            contents: {
+                type: "bubble",
+                size: "mega",
+                hero: {
+                    type: "image",
+                    url: "https://img5.pic.in.th/file/secure-sv1/fc842ee3-6dd4-4514-8c52-edd79dabd51e.jpg",
+                    size: "full",
+                    aspectRatio: "1:1",
+                    aspectMode: "cover"
+                },
+                footer: {
+                    type: "box",
+                    layout: "vertical",
+                    contents: [
+                        {
+                            type: "button",
+                            style: "primary",
+                            action: {
+                                type: "uri",
+                                label: "ไปที่ LINE Official",
+                                uri: "https://lin.ee/SX1tYto"
+                            }
+                        }
+                    ]
+                }
+            }
+        };
+
+        /* ✅ แชร์ */
+        const result = await liff.shareTargetPicker([flexMessage]);
+
+        if (result) {
+            console.log("แชร์สำเร็จ");
+        }
+
+    } catch (err) {
+        console.error("เกิดข้อผิดพลาด", err);
+        alert("ไม่สามารถแชร์ได้");
+    }
+}
+</script>
+
+</body>
+</html>
