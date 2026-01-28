@@ -1,107 +1,228 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>🔥 Fire Share</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>สิทธิ์พิเศษสำหรับคุณ</title>
 
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
 <style>
 html,body{
-  margin:0; padding:0; height:100%; background:#000; overflow:hidden;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  margin:0;
+  padding:0;
+  height:100%;
+  background:#050505;
+  font-family:'Kanit',Arial,sans-serif;
 }
-#fire{position:fixed; inset:0; z-index:0;}
-.wrap{
-  position:relative; z-index:2; height:100%;
-  display:flex; align-items:center; justify-content:center;
+
+/* ✨ Glow Background */
+body::before{
+  content:"";
+  position:fixed;
+  inset:-40%;
+  background:conic-gradient(
+    #00ffe1,
+    #0066ff,
+    #00ffe1,
+    #0066ff,
+    #00ffe1
+  );
+  animation:spin 14s linear infinite;
+  opacity:.22;
 }
-.btn{
-  position:relative; padding:18px 48px; font-size:22px; font-weight:700;
-  border:none; border-radius:56px; cursor:pointer; color:#000;
-  background:linear-gradient(90deg,#ffd000,#ff7a00);
-  box-shadow:0 0 18px #ff9900, 0 0 36px rgba(255,120,0,.7);
+
+@keyframes spin{
+  to{transform:rotate(360deg)}
 }
-.btn:disabled{opacity:.6; cursor:not-allowed}
+
+.container{
+  position:relative;
+  z-index:2;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:16px;
+}
+
+img{
+  width:100%;
+  max-width:360px;
+  border-radius:18px;
+  box-shadow:0 0 40px rgba(0,255,255,.9);
+}
+
+h1{
+  margin:14px 0 6px;
+  color:#00ffe1;
+  font-weight:900;
+  font-size:26px;
+  text-shadow:0 0 14px rgba(0,255,255,1);
+}
+
+.sub{
+  color:#ffffff;
+  font-size:14px;
+}
+
+.urgency{
+  margin-top:8px;
+  color:#ffcc00;
+  font-size:13px;
+  font-weight:800;
+}
+
+button{
+  margin-top:26px;
+  padding:18px 46px;
+  font-size:20px;
+  font-weight:900;
+  color:#000;
+  background:linear-gradient(90deg,#00ffe1,#00bfff,#00ffe1);
+  border:none;
+  border-radius:70px;
+  cursor:pointer;
+  animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(0,255,225,.9)}
+  70%{box-shadow:0 0 0 26px rgba(0,255,225,0)}
+  100%{box-shadow:0 0 0 0 rgba(0,255,225,0)}
+}
+
+#status{
+  margin-top:14px;
+  color:#00ffe1;
+  font-weight:700;
+  display:none;
+}
 </style>
 </head>
 
 <body>
-<canvas id="fire"></canvas>
+<div class="container">
 
-<div class="wrap">
-  <button id="shareBtn" class="btn" onclick="shareFlex()">🔥 กดแชร์เพื่อรับสิทธิ์</button>
+  <img src="https://img5.pic.in.th/file/secure-sv1/fc842ee3-6dd4-4514-8c52-edd79dabd51e.jpg">
+
+  <h1>สิทธิ์พิเศษเฉพาะคุณ</h1>
+  <div class="sub">ระบบจำกัดจำนวน • ไม่เปิดซ้ำ</div>
+  <div class="urgency">⚠️ เหลือเวลาไม่มาก</div>
+
+  <button onclick="shareFlex()">▶ รับสิทธิ์ทันที</button>
+  <div id="status">✅ แชร์สำเร็จ กำลังพาไปต่อ…</div>
+
 </div>
 
 <script>
-/* ===== Fire Particle ===== */
-const c = document.getElementById('fire');
-const x = c.getContext('2d');
-let P=[];
-function rs(){c.width=innerWidth; c.height=innerHeight}
-addEventListener('resize',rs); rs();
-class F{
-  constructor(){this.x=Math.random()*c.width; this.y=c.height+Math.random()*80;
-    this.r=Math.random()*5+3; this.v=Math.random()*1.8+1; this.a=1}
-  u(){this.y-=this.v; this.a-=.014}
-  d(){x.beginPath(); x.fillStyle=`rgba(255,150,0,${this.a})`;
-     x.arc(this.x,this.y,this.r,0,Math.PI*2); x.fill()}
+const LIFF_ID = "2008689015-qDukuXPF";
+const TARGET_URL = "https://lin.ee/SX1tYto";
+
+async function initLIFF(){
+  await liff.init({ liffId: LIFF_ID });
+  if(!liff.isLoggedIn()){
+    liff.login();
+  }
 }
-(function anim(){
-  x.clearRect(0,0,c.width,c.height);
-  if(P.length<180) P.push(new F());
-  P.forEach((p,i)=>{p.u(); p.d(); if(p.a<=0) P.splice(i,1)});
-  requestAnimationFrame(anim);
-})();
+initLIFF();
 
-/* ===== LIFF Share ===== */
 async function shareFlex(){
-  const btn=document.getElementById('shareBtn');
-  btn.disabled=true;
-  try{
-    await liff.init({ liffId:"2008689015-qDukuXPF" });
-    if(!liff.isInClient()){ alert("กรุณาเปิดผ่านแอป LINE"); btn.disabled=false; return; }
+  if(!liff.isApiAvailable("shareTargetPicker")){
+    alert("กรุณาเปิดผ่านแอป LINE");
+    return;
+  }
 
-    const flex={
-      type:"flex",
-      altText:"สิทธิ์พิเศษ",
-      contents:{
-        type:"bubble",
-        size:"mega",
-        styles:{ body:{backgroundColor:"#000"}, footer:{backgroundColor:"#000"} },
-        hero:{
-          type:"image",
-          url:"https://img5.pic.in.th/file/secure-sv1/fc842ee3-6dd4-4514-8c52-edd79dabd51e.jpg",
-          size:"full",
-          aspectRatio:"1:1",
-          aspectMode:"cover"
-        },
-        footer:{
-          type:"box",
-          layout:"vertical",
-          contents:[{
+  const flex = {
+    type:"flex",
+    altText:"สิทธิ์พิเศษเฉพาะคุณ",
+    contents:{
+      type:"bubble",
+      size:"giga",
+      styles:{
+        body:{backgroundColor:"#001a1f"},
+        footer:{backgroundColor:"#001a1f"}
+      },
+      hero:{
+        type:"image",
+        url:"https://img5.pic.in.th/file/secure-sv1/fc842ee3-6dd4-4514-8c52-edd79dabd51e.jpg",
+        size:"full",
+        aspectRatio:"1:1",
+        aspectMode:"cover"
+      },
+      body:{
+        type:"box",
+        layout:"vertical",
+        contents:[
+          {
+            type:"text",
+            text:"✨ สิทธิ์พิเศษเฉพาะคุณ ✨",
+            weight:"bold",
+            size:"xl",
+            align:"center",
+            color:"#00ffe1"
+          },
+          {
+            type:"text",
+            text:"ระบบจำกัดจำนวน • ไม่เปิดซ้ำ",
+            size:"sm",
+            align:"center",
+            color:"#FFFFFF",
+            margin:"sm"
+          },
+          {
+            type:"text",
+            text:"⚠️ เหลือเวลาไม่มาก",
+            size:"xs",
+            align:"center",
+            color:"#FFCC00",
+            margin:"sm"
+          }
+        ]
+      },
+      footer:{
+        type:"box",
+        layout:"vertical",
+        spacing:"sm",
+        contents:[
+          {
             type:"button",
             style:"primary",
-            action:{ type:"uri", label:"ไปที่ LINE Official", uri:"https://lin.ee/SX1tYto" }
-          }]
-        }
+            height:"md",
+            color:"#00FFE1",
+            action:{
+              type:"uri",
+              label:"🚀 เปิดสิทธิ์ผ่าน LINE",
+              uri:"https://lin.ee/SX1tYto"
+            }
+          },
+          {
+            type:"text",
+            text:"⏱ ระบบอาจปิดได้ทุกเมื่อ",
+            size:"xs",
+            color:"#FFFFFF",
+            align:"center",
+            margin:"md"
+          }
+        ]
       }
-    };
-
-    const result = await liff.shareTargetPicker([flex]);
-    if(result){
-      setTimeout(()=>{ // หน่วงนิดให้ UX เนียน
-        liff.openWindow({ url:"https://lin.ee/SX1tYto", external:true });
-      }, 500);
     }
-  }catch(e){
-    console.error(e);
-    alert("แชร์ไม่สำเร็จ");
-  }finally{
-    btn.disabled=false;
+  };
+
+  const res = await liff.shareTargetPicker([flex]);
+  if(res){
+    document.getElementById("status").style.display="block";
+    setTimeout(()=>{
+      liff.openWindow({
+        url: TARGET_URL,
+        external:true
+      });
+    },1000);
   }
 }
 </script>
+
 </body>
 </html>
